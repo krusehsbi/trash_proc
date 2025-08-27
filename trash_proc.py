@@ -1,48 +1,57 @@
 import blenderproc as bproc
 import os, random
 import numpy as np
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
+
+from asset_loader import AssetLoader
 
 # 1. Init BlenderProc
 bproc.init()
 
 # 2. Collect all assets (OBJ + BLEND) from folder
 asset_dir = "/home/alex/projects/trash_meshes/bottle/beer_bottle"
-files = [f for f in os.listdir(asset_dir) if f.endswith((".obj", ".blend"))]
+loader = AssetLoader(asset_dir)
+loaded_objs_groups = loader.load_assets()
 
-loaded_objs = []
+print("Loaded object groups:", loaded_objs_groups)
 
-for f in files:
-    path = os.path.join(asset_dir, f)
-    if f.endswith(".obj"):
-        objs = bproc.loader.load_obj(path, load_materials=True)
-        loaded_objs.extend(objs)
-    elif f.endswith(".blend"):
-        objs = bproc.loader.load_blend(path)
-        loaded_objs.extend(objs)
-
-# 3. Randomly place each object
-for obj in loaded_objs:
-    obj.set_location([
+for obj_group in loaded_objs_groups:
+    # Generate one random transformation per group
+    location = [
         random.uniform(-1, 1),  # X
         random.uniform(-1, 1),  # Y
         random.uniform(0, 1)    # Z
-    ])
-    obj.set_rotation_euler([
+    ]
+    rotation = [
         random.uniform(0, np.pi),  # X
         random.uniform(0, np.pi),  # Y
         random.uniform(0, np.pi)   # Z
-    ])
+    ]
     # Optional: random scale
     #scale = random.uniform(0.5, 1.5)
-    #obj.set_scale([scale, scale, scale])
+    for obj in obj_group:
+        obj.set_location(location)
+        obj.set_rotation_euler(rotation)
+        #obj.set_scale([scale, scale, scale])
 
 # 4. Compute scene bounding box (for camera placement)
 mins, maxs = [], []
-for o in loaded_objs:
-    bb = o.get_bound_box()
-    mins.append(bb.min(axis=0))
-    maxs.append(bb.max(axis=0))
+for obj_group in loaded_objs_groups:
+    for o in obj_group:
+        if not hasattr(o, "get_bound_box"):
+            print(f"[warn] Skipping non-mesh object: {o}")
+            continue
+        bb = o.get_bound_box()     # 8x3 array-like
+        bb = np.asarray(bb)
+        mins.append(bb.min(axis=0))
+        maxs.append(bb.max(axis=0))
 
+if not mins:
+    raise RuntimeError("No mesh objects with bounding boxes were loaded; check your asset folder and loader.")
 scene_min = np.min(np.vstack(mins), axis=0)
 scene_max = np.max(np.vstack(maxs), axis=0)
 center    = (scene_min + scene_max) / 2.0
