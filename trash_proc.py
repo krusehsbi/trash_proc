@@ -22,9 +22,9 @@ print("Loaded object groups:", loaded_objs_groups)
 for obj_group in loaded_objs_groups:
     # Generate one random transformation per group
     location = [
-        random.uniform(-10, 10),  # X
-        random.uniform(-10, 10),  # Y
-        random.uniform(0, 10)    # Z
+        random.uniform(-5, 5),  # X
+        random.uniform(-5, 5),  # Y
+        random.uniform(0, 5)    # Z
     ]
     rotation = [
         random.uniform(0, np.pi),  # X
@@ -56,7 +56,7 @@ scene_min = np.min(np.vstack(mins), axis=0)
 scene_max = np.max(np.vstack(maxs), axis=0)
 center    = (scene_min + scene_max) / 2.0
 extent    = scene_max - scene_min
-base_radius = max(extent.max(), 1.0) * 2.5  # how far the camera sits
+base_radius = max(extent.max(), 1.0) * 1.5  # how far the camera sits
 
 # 5. Add camera poses around scene
 def sph_to_cart(radius, az_deg, el_deg):
@@ -86,11 +86,11 @@ for i in range(3):  # three random views
 light = bproc.types.Light()
 light.set_type("SUN")
 light.set_location([0, 0, 5])
-light.set_energy(5)
+light.set_energy(10)
 
 # 7. Render and save
 bproc.renderer.set_output_format("PNG")
-bproc.renderer.set_max_amount_of_samples(64)   # new API
+bproc.renderer.set_max_amount_of_samples(128)   # new API
 bproc.renderer.set_render_devices("CPU")  # or "GPU" if supported
 
 images = bproc.renderer.render()
