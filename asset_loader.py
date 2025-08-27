@@ -9,13 +9,16 @@ class AssetLoader:
         self.loaded_objs: List[List[bproc.types.MeshObject]] = []
 
     def load_assets(self):
-        files = [f for f in os.listdir(self.asset_dir) if f.endswith((".obj", ".blend"))]
         self.loaded_objs = []
-        for f in files:
-            path = os.path.join(self.asset_dir, f)
+        # Recursively find all .obj and .blend files
+        files = []
+        for root, _, filenames in os.walk(self.asset_dir):
+            for f in filenames:
+                if f.endswith((".obj", ".blend")):
+                    files.append(os.path.join(root, f))
+        for path in files:
             loaded = self._load_asset(path)
-            # keep only MeshObjects
-            #loaded = [o for o in loaded if isinstance(o, bproc.types.MeshObject)]
+            loaded = [o for o in loaded if isinstance(o, bproc.types.MeshObject)]
             if loaded:
                 self.loaded_objs.append(loaded)
         return self.loaded_objs

@@ -13,7 +13,7 @@ from asset_loader import AssetLoader
 bproc.init()
 
 # 2. Collect all assets (OBJ + BLEND) from folder
-asset_dir = "/home/alex/projects/trash_meshes/bottle/beer_bottle"
+asset_dir = "/home/alex/projects/trash_meshes/bottle/"
 loader = AssetLoader(asset_dir)
 loaded_objs_groups = loader.load_assets()
 
@@ -22,9 +22,9 @@ print("Loaded object groups:", loaded_objs_groups)
 for obj_group in loaded_objs_groups:
     # Generate one random transformation per group
     location = [
-        random.uniform(-1, 1),  # X
-        random.uniform(-1, 1),  # Y
-        random.uniform(0, 1)    # Z
+        random.uniform(-10, 10),  # X
+        random.uniform(-10, 10),  # Y
+        random.uniform(0, 10)    # Z
     ]
     rotation = [
         random.uniform(0, np.pi),  # X
