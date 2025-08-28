@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from asset_loader import AssetLoader
+from scene import Scene
 import json
 
 # 1. Init BlenderProc
@@ -30,48 +31,16 @@ for category in class_mappings:
     # append results into loader.all_loaded_groups (default behaviour)
     loader.load_assets(asset_dir=category_dir, category_id=category_id, category_name=name)
 
+#3. Randomly place objects in scene
 # use accumulated groups:
 all_loaded_groups = loader.get_all_loaded_groups()
 print("Loaded object groups:", all_loaded_groups)
 
-for obj_group in all_loaded_groups:
-    # Generate one random transformation per group
-    location = [
-        random.uniform(-5, 5),  # X
-        random.uniform(-5, 5),  # Y
-        random.uniform(0, 5)    # Z
-    ]
-    rotation = [
-        random.uniform(0, np.pi),  # X
-        random.uniform(0, np.pi),  # Y
-        random.uniform(0, np.pi)   # Z
-    ]
-    # Optional: random scale
-    #scale = random.uniform(0.5, 1.5)
-    for obj in obj_group:
-        obj.set_location(location)
-        obj.set_rotation_euler(rotation)
-        #obj.set_scale([scale, scale, scale])
+scene = Scene(all_loaded_groups)
+scene.place_objects_randomly()
 
-# 4. Compute scene bounding box (for camera placement)
-mins, maxs = [], []
-for obj_group in all_loaded_groups:
-    for o in obj_group:
-        if not hasattr(o, "get_bound_box"):
-            print(f"[warn] Skipping non-mesh object: {o}")
-            continue
-        bb = o.get_bound_box()     # 8x3 array-like
-        bb = np.asarray(bb)
-        mins.append(bb.min(axis=0))
-        maxs.append(bb.max(axis=0))
-
-if not mins:
-    raise RuntimeError("No mesh objects with bounding boxes were loaded; check your asset folder and loader.")
-scene_min = np.min(np.vstack(mins), axis=0)
-scene_max = np.max(np.vstack(maxs), axis=0)
-center    = (scene_min + scene_max) / 2.0
-extent    = scene_max - scene_min
-base_radius = max(extent.max(), 1.0) * 1.5  # how far the camera sits
+# 4. Compute camera radius from scene (for camera placement)
+center, base_radius = scene.find_camera_radius(distance_factor=1.5)
 
 # 5. Add camera poses around scene
 def sph_to_cart(radius, az_deg, el_deg):
