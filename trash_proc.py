@@ -48,10 +48,7 @@ for i in range(3):  # three random views
 
 
 # 6. Add lights
-light = bproc.types.Light()
-light.set_type("SUN")
-light.set_location([0, 0, 5])
-light.set_energy(10)
+scene.add_light("SUN", location=[0, 0, 5], energy=10)
 
 # 7. Render and save
 bproc.renderer.set_output_format("PNG")

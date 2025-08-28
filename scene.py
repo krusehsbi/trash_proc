@@ -63,3 +63,9 @@ class Scene:
                                                 inplane_rot=np.random.uniform(0, 2*np.pi))
         )
         bproc.camera.add_camera_pose(cam_pose)
+
+    def add_light(self, light_type="SUN", location=[0,0,5], energy=10):
+        light = bproc.types.Light()
+        light.set_type(light_type)
+        light.set_location(location)
+        light.set_energy(energy)
