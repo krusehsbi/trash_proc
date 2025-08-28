@@ -1,5 +1,7 @@
 import random
 import numpy as np
+import blenderproc as bproc
+from utility import sph_to_cart
 
 class Scene:
     def __init__(self, all_loaded_groups):
@@ -46,3 +48,18 @@ class Scene:
         extent    = scene_max - scene_min
         base_radius = max(extent.max(), 1.0) * distance_factor # how far the camera sits
         return center, base_radius
+    
+    def add_camera_poses(self, center, base_radius):
+
+        radius = base_radius * np.random.uniform(0.9, 1.2)
+        az = np.random.uniform(0, 360)
+        el = np.random.uniform(10, 45)
+        cam_pos = center + sph_to_cart(radius, az, el)
+
+        forward = center - cam_pos
+        cam_pose = bproc.math.build_transformation_mat(
+            cam_pos.tolist(),
+            bproc.camera.rotation_from_forward_vec(forward.tolist(),
+                                                inplane_rot=np.random.uniform(0, 2*np.pi))
+        )
+        bproc.camera.add_camera_pose(cam_pose)

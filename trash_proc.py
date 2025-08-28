@@ -43,27 +43,8 @@ scene.place_objects_randomly()
 center, base_radius = scene.find_camera_radius(distance_factor=1.5)
 
 # 5. Add camera poses around scene
-def sph_to_cart(radius, az_deg, el_deg):
-    az = np.deg2rad(az_deg)
-    el = np.deg2rad(el_deg)
-    x = radius * np.cos(el) * np.cos(az)
-    y = radius * np.cos(el) * np.sin(az)
-    z = radius * np.sin(el)
-    return np.array([x, y, z])
-
 for i in range(3):  # three random views
-    radius = base_radius * np.random.uniform(0.9, 1.2)
-    az = np.random.uniform(0, 360)
-    el = np.random.uniform(10, 45)
-    cam_pos = center + sph_to_cart(radius, az, el)
-
-    forward = center - cam_pos
-    cam_pose = bproc.math.build_transformation_mat(
-        cam_pos.tolist(),
-        bproc.camera.rotation_from_forward_vec(forward.tolist(),
-                                               inplane_rot=np.random.uniform(0, 2*np.pi))
-    )
-    bproc.camera.add_camera_pose(cam_pose)
+    scene.add_camera_poses(center, base_radius)
 
 
 # 6. Add lights
