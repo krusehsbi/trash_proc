@@ -13,6 +13,7 @@ class AssetLoader:
         self.asset_dir = asset_dir
         self.loaded_objs: List[List[bproc.types.MeshObject]] = []       # last load
         self.all_loaded_groups: List[List[bproc.types.MeshObject]] = []  # accumulated across calls
+        self._next_instance_id = 1   # for stable, unique instance ids
 
     def _iter_asset_files(self, asset_dir: str):
         for root, _, filenames in os.walk(asset_dir):
@@ -27,6 +28,7 @@ class AssetLoader:
         category_name: Optional[str] = None,
         assign_cp: bool = True,
         clear: bool = False,
+        group_parts_as_one: bool = True,
     ) -> List[List[bproc.types.MeshObject]]:
         """
         Load assets from asset_dir (or default). Returns list-of-lists where each sublist
@@ -47,12 +49,22 @@ class AssetLoader:
             mesh_objs = [o for o in loaded if isinstance(o, bproc.types.MeshObject)]
             if not mesh_objs:
                 continue
+
+            # one instance id per file/group
+            if group_parts_as_one:
+                group_inst_id = self._next_instance_id
+                self._next_instance_id += 1
+
+            
             if assign_cp and (category_id is not None or category_name is not None):
                 for o in mesh_objs:
                     if category_id is not None:
                         o.set_cp("category_id", category_id)
                     if category_name is not None:
                         o.set_cp("category_name", category_name)
+                    if group_parts_as_one:
+                        o.set_cp("id", group_inst_id)
+
             self.loaded_objs.append(mesh_objs)
             self.all_loaded_groups.append(mesh_objs)
 
