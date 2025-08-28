@@ -108,8 +108,17 @@ bproc.renderer.set_output_format("PNG")
 bproc.renderer.set_max_amount_of_samples(128)   # new API
 bproc.renderer.set_render_devices("CPU")  # or "GPU" if supported
 
-# 8. Save COCO annotations
-
-
 images = bproc.renderer.render()
 bproc.writer.write_hdf5("output/", images)
+
+# 8. Save COCO annotations
+seg_data = bproc.renderer.render_segmap(map_by=["class", "instance"])
+bproc.writer.write_coco_annotations(
+    output_dir="output/coco_data",
+    instance_segmaps=seg_data["instance_segmaps"],
+    instance_attribute_maps=seg_data["instance_attribute_maps"],
+    colors=images["colors"],
+    color_file_format="JPEG"
+)
+
+
