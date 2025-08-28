@@ -8,18 +8,33 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from asset_loader import AssetLoader
+import json
 
 # 1. Init BlenderProc
 bproc.init()
 
 # 2. Collect all assets (OBJ + BLEND) from folder
-asset_dir = "/home/alex/projects/trash_meshes/bottle/"
-loader = AssetLoader(asset_dir)
-loaded_objs_groups = loader.load_assets()
+loader = AssetLoader()  # reuse one loader
+with open(ROOT / "configs/class_mapping.json", "r") as f:
+    class_mappings = json.load(f)
 
-print("Loaded object groups:", loaded_objs_groups)
+for category in class_mappings:
+    category_id = category["class_id"]
+    class_dir = category["class_dir"]
+    name = category["class_name"]
+    category_dir = os.path.join(ROOT, "assets", class_dir)
+    if not os.path.exists(category_dir):
+        print(f"[warn] Category directory does not exist: {category_dir}")
+        continue
 
-for obj_group in loaded_objs_groups:
+    # append results into loader.all_loaded_groups (default behaviour)
+    loader.load_assets(asset_dir=category_dir, category_id=category_id, category_name=name)
+
+# use accumulated groups:
+all_loaded_groups = loader.get_all_loaded_groups()
+print("Loaded object groups:", all_loaded_groups)
+
+for obj_group in all_loaded_groups:
     # Generate one random transformation per group
     location = [
         random.uniform(-5, 5),  # X
@@ -40,7 +55,7 @@ for obj_group in loaded_objs_groups:
 
 # 4. Compute scene bounding box (for camera placement)
 mins, maxs = [], []
-for obj_group in loaded_objs_groups:
+for obj_group in all_loaded_groups:
     for o in obj_group:
         if not hasattr(o, "get_bound_box"):
             print(f"[warn] Skipping non-mesh object: {o}")
@@ -92,6 +107,9 @@ light.set_energy(10)
 bproc.renderer.set_output_format("PNG")
 bproc.renderer.set_max_amount_of_samples(128)   # new API
 bproc.renderer.set_render_devices("CPU")  # or "GPU" if supported
+
+# 8. Save COCO annotations
+
 
 images = bproc.renderer.render()
 bproc.writer.write_hdf5("output/", images)

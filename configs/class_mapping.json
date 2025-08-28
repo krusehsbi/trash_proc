@@ -1,0 +1,104 @@
+[
+    {
+        "class_id": 0,
+        "class_name": "Plastic bag & wrapper",
+        "color": [255, 0, 0],
+        "class_dir": "plastic_bag_wrapper/"
+    },
+    {
+        "class_id": 1,
+        "class_name": "Cigarette",
+        "color": [0, 255, 0],
+        "class_dir": "cigarettes/"
+    },
+    {
+        "class_id": 2,
+        "class_name": "Bottle",
+        "color": [0, 0, 255],
+        "class_dir": "bottle/"
+    },
+    {
+        "class_id": 3,
+        "class_name": "Bottle cap",
+        "color": [255, 255, 0],
+        "class_dir": "bottle_cap/"
+    },
+    {
+        "class_id": 4,
+        "class_name": "Can",
+        "color": [255, 0, 255],
+        "class_dir": "can/"
+    },
+    {
+        "class_id": 5,
+        "class_name": "Other plastic",
+        "color": [0, 255, 255],
+        "class_dir": "other_plastic/"
+    },
+    {
+        "class_id": 6,
+        "class_name": "Carton",
+        "color": [128, 0, 128],
+        "class_dir": "carton/"
+    },
+    {
+        "class_id": 7,
+        "class_name": "Cup",
+        "color": [128, 128, 0],
+        "class_dir": "cup/"
+    },
+    {
+        "class_id": 8,
+        "class_name": "Straw",
+        "color": [0, 128, 128],
+        "class_dir": "straw/"
+    },
+    {
+        "class_id": 9,
+        "class_name": "Paper",
+        "color": [192, 192, 192],
+        "class_dir": "paper/"
+    },
+    {
+        "class_id": 10,
+        "class_name": "Broken glass",
+        "color": [128, 128, 128],
+        "class_dir": "broken_glass/"
+    },
+    {
+        "class_id": 11,
+        "class_name": "Styrofoam piece",
+        "color": [0, 0, 0],
+        "class_dir": "styrofoam_piece/"
+    },
+    {
+        "class_id": 12,
+        "class_name": "Pop tab",
+        "color": [255, 165, 0],
+        "class_dir": "pop_tab/"
+    },
+    {
+        "class_id": 13,
+        "class_name": "Lid",
+        "color": [0, 100, 0],
+        "class_dir": "lid/"
+    },
+    {
+        "class_id": 14,
+        "class_name": "Plastic container",
+        "color": [0, 0, 139],
+        "class_dir": "plastic_container/"
+    },
+    {
+        "class_id": 15,
+        "class_name": "Aluminum foil",
+        "color": [255, 20, 147],
+        "class_dir": "aluminum_foil/"
+    },
+    {
+        "class_id": 16,
+        "class_name": "Plastic utensils",
+        "color": [75, 0, 130],
+        "class_dir": "plastic_utensils/"
+    }
+]
