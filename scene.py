@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import blenderproc as bproc
+import itertools
 from utility import sph_to_cart
 
 class Scene:
@@ -8,25 +9,12 @@ class Scene:
         self.all_loaded_groups = all_loaded_groups
 
     # TODO: improve placement logic (e.g. avoid collisions)
+    def sample_pose(self, obj: bproc.types.MeshObject):
+        obj.set_location(np.random.uniform([-5, -5, -5], [5, 5, 5]))
+        obj.set_rotation_euler(np.random.uniform([0, 0, 0], [np.pi, np.pi, np.pi]))
+
     def place_objects_randomly(self):
-        for obj_group in self.all_loaded_groups:
-            # Generate one random transformation per group
-            location = [
-                random.uniform(-5, 5),  # X
-                random.uniform(-5, 5),  # Y
-                random.uniform(0, 5)    # Z
-            ]
-            rotation = [
-                random.uniform(0, np.pi),  # X
-                random.uniform(0, np.pi),  # Y
-                random.uniform(0, np.pi)   # Z
-            ]
-            # Optional: random scale
-            #scale = random.uniform(0.5, 1.5)
-            for obj in obj_group:
-                obj.set_location(location)
-                obj.set_rotation_euler(rotation)
-                #obj.set_scale([scale, scale, scale])
+        bproc.object.sample_poses(list(itertools.chain.from_iterable(self.all_loaded_groups)), sample_pose_func=self.sample_pose)
 
     def find_camera_radius(self, distance_factor=1.5):
         mins, maxs = [], []
