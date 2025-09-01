@@ -62,11 +62,12 @@ class AssetLoader:
                         o.set_cp("category_id", category_id)
                     if category_name is not None:
                         o.set_cp("category_name", category_name)
-                    if group_parts_as_one:
-                        o.set_cp("id", group_inst_id)
+                    
+            if group_parts_as_one:
+                mesh_objs[0].join_with_other_objects(mesh_objs[1:])
 
-            self.loaded_objs.append(mesh_objs)
-            self.all_loaded_groups.append(mesh_objs)
+            self.loaded_objs.append([mesh_objs[0]] if group_parts_as_one else mesh_objs)
+            self.all_loaded_groups.append([mesh_objs[0]] if group_parts_as_one else mesh_objs)
 
         return self.loaded_objs
 
