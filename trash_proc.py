@@ -9,7 +9,10 @@ sys.path.insert(0, str(ROOT))
 
 from asset_loader import AssetLoader
 from scene import Scene
+from args import parse_script_args
 import json
+
+args = parse_script_args()
 
 # 1. Init BlenderProc
 bproc.init()
@@ -43,7 +46,7 @@ scene.place_objects_randomly()
 center, base_radius = scene.find_camera_radius(distance_factor=1.5)
 
 # 5. Add camera poses around scene
-for i in range(3):  # three random views
+for i in range(args.num_views):  # three random views
     scene.add_camera_poses(center, base_radius)
 
 
@@ -67,5 +70,3 @@ bproc.writer.write_coco_annotations(
     colors=images["colors"],
     color_file_format="JPEG"
 )
-
-
