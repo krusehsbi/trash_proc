@@ -68,3 +68,18 @@ Notes:
 - class_id must be a unique integer per category.
 - class_name is a human-readable label used in annotations.
 - Add or remove entries as needed and keep the file valid JSON.
+
+## Run pipeline
+
+To run the script and start generating images and their annotation run:
+
+```bash
+blenderproc run trash_proc.py --num_views 10
+```
+
+Images and annotations will be saved to output/coco_data folder.
+If you wish to inspect annotations you can call the following command:
+
+```bash
+blenderproc vis coco -i 0 -c coco_annotations.json -b output/coco_data
+```
