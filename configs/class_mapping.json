@@ -9,7 +9,7 @@
         "class_id": 1,
         "class_name": "Cigarette",
         "color": [0, 255, 0],
-        "class_dir": "cigarettes/"
+        "class_dir": "cigarette/"
     },
     {
         "class_id": 2,
