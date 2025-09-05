@@ -54,12 +54,15 @@ for i in range(args.num_views):  # three random views
 scene.add_light("SUN", location=[0, 0, 5], energy=10)
 
 # 7. Render and save
-bproc.renderer.set_output_format("PNG")
-bproc.renderer.set_max_amount_of_samples(128)   # new API
+bproc.renderer.set_output_format("JPEG")
+bproc.renderer.set_max_amount_of_samples(1024)   # new API
 bproc.renderer.set_render_devices("CPU")  # or "GPU" if supported
+bproc.renderer.set_denoiser("INTEL")
+
+bproc.camera.set_resolution(1024, 1024)
 
 images = bproc.renderer.render()
-bproc.writer.write_hdf5("output/", images)
+#bproc.writer.write_hdf5("output/", images)
 
 # 8. Save COCO annotations
 seg_data = bproc.renderer.render_segmap(map_by=["class", "instance"])
