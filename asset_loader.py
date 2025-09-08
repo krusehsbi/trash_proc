@@ -1,5 +1,6 @@
 # asset_loader.py
 import os
+import random
 import blenderproc as bproc
 from typing import List, Optional
 
@@ -72,6 +73,34 @@ class AssetLoader:
         elif path.lower().endswith(".blend"):
             return bproc.loader.load_blend(path)
         return []
+
+    def apply_random_dust(self, strength_interval=(0.0, 1.0), scale_interval=(0.0, 1.0)):
+        """
+        Apply random dust to all loaded objects.
+        Skips materials without nodes to avoid BlenderProc's wrapper crash.
+        """
+        groups = self.loaded_objs + [g for g in self.all_loaded_groups if g not in self.loaded_objs]
+        for obj_group in groups:
+            for obj in obj_group:
+                bpy_obj = obj.blender_obj
+                if bpy_obj is None or not getattr(bpy_obj.data, "materials", None):
+                    continue
+
+                for bpy_mat in list(bpy_obj.data.materials or []):
+                    # Skip empty slots or non-node materials
+                    if bpy_mat is None or not getattr(bpy_mat, "use_nodes", False):
+                        continue
+
+                    # Wrap only now (safe because nodes are enabled)
+                    try:
+                        bp_mat = bproc.types.Material(bpy_mat)
+                    except Exception:
+                        # Extremely defensive: if wrapping still fails, skip
+                        continue
+
+                    strength = random.uniform(*strength_interval)
+                    scale = random.uniform(*scale_interval)
+                    bproc.material.add_dust(bp_mat, strength=strength, texture_scale=scale)
 
     def get_loaded_objs(self) -> List[List[bproc.types.MeshObject]]:
         return self.loaded_objs

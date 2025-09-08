@@ -34,6 +34,10 @@ for category in class_mappings:
     # append results into loader.all_loaded_groups (default behaviour)
     loader.load_assets(asset_dir=category_dir, category_id=category_id, category_name=name)
 
+# Apply random dust to all loaded objects
+if args.apply_dirt:
+    loader.apply_random_dust(strength_interval=(0.1, 1.0), scale_interval=(0.1, 1.0))
+
 #3. Randomly place objects in scene
 # use accumulated groups:
 all_loaded_groups = loader.get_all_loaded_groups()

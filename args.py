@@ -12,4 +12,5 @@ def parse_script_args():
         raw = raw[1:]
     parser = argparse.ArgumentParser()
     parser.add_argument("--num_views", type=int, default=3, help="number of camera views")
+    parser.add_argument("--apply_dirt", action='store_true', help="whether to apply random dirt to objects")
     return parser.parse_args(raw)
