@@ -8,7 +8,6 @@ class Scene:
     def __init__(self, all_loaded_groups):
         self.all_loaded_groups = all_loaded_groups
 
-    # TODO: improve placement logic (e.g. avoid collisions)
     def sample_pose(self, obj: bproc.types.MeshObject):
         obj.set_location(np.random.uniform([-5, -5, -5], [5, 5, 5]))
         obj.set_rotation_euler(np.random.uniform([0, 0, 0], [np.pi, np.pi, np.pi]))
