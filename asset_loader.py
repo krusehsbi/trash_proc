@@ -3,6 +3,7 @@ import os
 import random
 import blenderproc as bproc
 from typing import List, Optional
+from weathering import Weathering
 
 class AssetLoader:
     def __init__(self, asset_dir: Optional[str] = None):
@@ -101,6 +102,15 @@ class AssetLoader:
                     strength = random.uniform(*strength_interval)
                     scale = random.uniform(*scale_interval)
                     bproc.material.add_dust(bp_mat, strength=strength, texture_scale=scale)
+
+    def apply_weathering(self, **kwargs):
+        """
+        Apply category-agnostic weathering (deforms + material aging).
+        kwargs are passed to Weathering(...).
+        """
+        groups = self.loaded_objs + [g for g in self.all_loaded_groups if g not in self.loaded_objs]
+        Weathering(**kwargs).apply_to_groups(groups)
+
 
     def get_loaded_objs(self) -> List[List[bproc.types.MeshObject]]:
         return self.loaded_objs

@@ -35,8 +35,13 @@ for category in class_mappings:
     loader.load_assets(asset_dir=category_dir, category_id=category_id, category_name=name)
 
 # Apply random dust to all loaded objects
-if args.apply_dirt:
-    loader.apply_random_dust(strength_interval=(0.1, 1.0), scale_interval=(0.1, 1.0))
+#TODO: fix dust on legacy materials (e.g. non node)
+if args.apply_weathering:
+    loader.apply_weathering(
+        p_displace=0.65, p_simple=0.45, p_lattice=0.25, p_axis_scale=0.6,
+        apply_modifiers=False,                 # True to bake
+        dust_strength=(0.12, 0.28), dust_scale=(0.02, 0.08)
+    )
 
 #3. Randomly place objects in scene
 # use accumulated groups:
