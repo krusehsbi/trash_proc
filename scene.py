@@ -69,6 +69,75 @@ class Scene:
         bproc.world.set_world_background_hdr_img(chosen, strength=strength)
         
         return chosen
+    
+    
+    def add_random_room(self, cc_material_dir, pix3d_dir, amount=15, scale_range=(0.95, 1.15)):
+        """
+        Build a random room (walls/floor/ceiling) and populate it with a random subset
+        of Pix3D meshes instead of the (now-unavailable) IKEA dataset.
+
+        Args:
+            cc_material_dir: path to CCTextures/ambientCG materials (for walls/floor/ceiling)
+            pix3d_dir: root folder of Pix3D dataset
+            amount: how many furniture objects to sample for this room
+            scale_range: random uniform scale applied to each loaded object
+
+        Returns:
+            room_objects: list of MeshObjects that form the room shell
+        """
+        # 1) Materials for the room shell
+        materials = bproc.loader.load_ccmaterials(cc_material_dir)
+
+        # 2) Gather Pix3D OBJ paths (handles typical Pix3D layouts)
+        #    Many Pix3D releases store meshes under category/model/*.obj or category/*/*.obj
+        candidates = set()
+        patterns = [
+            os.path.join(pix3d_dir, "*", "*.obj"),
+            os.path.join(pix3d_dir, "*", "*", "*.obj"),
+            os.path.join(pix3d_dir, "*", "*", "model.obj"),   # common Pix3D naming
+        ]
+        for pat in patterns:
+            for p in glob.glob(pat):
+                # Heuristic: avoid accidental non-mesh objs (if any)
+                name = os.path.basename(p).lower()
+                if name.endswith(".obj"):
+                    candidates.add(p)
+
+        candidates = sorted(candidates)
+        if not candidates:
+            raise RuntimeError(f"No OBJ files found under Pix3D dir: {pix3d_dir}")
+
+        # 3) Sample a subset to keep memory/render times reasonable
+        chosen = random.sample(candidates, k=min(amount, len(candidates)))
+
+        # 4) Load chosen meshes (with materials if MTL/textures are present)
+        interior_objects = []
+        for obj_path in chosen:
+            loaded = bproc.loader.load_obj(obj_path)
+            for o in loaded:
+                # Random gentle rescale (Pix3D units vary a bit)
+                s = random.uniform(*scale_range)
+                o.set_scale([s, s, s])
+                o.set_cp("dataset", "pix3d")
+            interior_objects.extend(loaded)
+
+        # 5) Construct a random room and let BlenderProc place the objects in it
+        room_objects = bproc.constructor.construct_random_room(
+            interior_objects=interior_objects,
+            materials=materials,
+            used_floor_area=100,
+            amount_of_extrusions=3,
+            corridor_width=1.5
+        )
+
+        # Optional: make the ceiling a soft area light
+        bproc.lighting.light_surface(
+            [o for o in room_objects if "Ceiling" in o.get_name()],
+            emission_strength=2.0
+        )
+
+        return room_objects
+
 
     def add_light(self, light_type="SUN", location=[0,0,5], energy=10):
         light = bproc.types.Light()
