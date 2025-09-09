@@ -51,6 +51,9 @@ print("Loaded object groups:", all_loaded_groups)
 scene = Scene(all_loaded_groups)
 scene.place_objects_randomly()
 
+if args.random_background:
+    scene.add_random_background(bg_folder=ROOT / "backgrounds")
+
 # 4. Compute camera radius from scene (for camera placement)
 center, base_radius = scene.find_camera_radius(distance_factor=1.5)
 

@@ -3,6 +3,8 @@ import numpy as np
 import blenderproc as bproc
 import itertools
 from utility import sph_to_cart
+import os
+import glob
 
 class Scene:
     def __init__(self, all_loaded_groups):
@@ -50,6 +52,23 @@ class Scene:
                                                 inplane_rot=np.random.uniform(0, 2*np.pi))
         )
         bproc.camera.add_camera_pose(cam_pose)
+
+    def add_random_background(self, bg_folder, strength=1.0):
+        """
+        Pick a random image (jpg/png/hdr/exr) from bg_folder and set it as the world background.
+        Returns the selected path.
+        """
+        patterns = ["*.jpg", "*.jpeg", "*.png", "*.hdr", "*.exr"]
+        files = []
+        for p in patterns:
+            files.extend(glob.glob(os.path.join(bg_folder, p)))
+        if not files:
+            raise RuntimeError(f"No background images found in: {bg_folder}")
+        chosen = random.choice(files)
+
+        bproc.world.set_world_background_hdr_img(chosen, strength=strength)
+        
+        return chosen
 
     def add_light(self, light_type="SUN", location=[0,0,5], energy=10):
         light = bproc.types.Light()
