@@ -5,6 +5,7 @@ import itertools
 from utility import sph_to_cart
 import os
 import glob
+import math
 
 class Scene:
     def __init__(self, all_loaded_groups):
@@ -109,74 +110,78 @@ class Scene:
         bproc.world.set_world_background_hdr_img(chosen, strength=strength)
         
         return chosen
-    
-    
-    def add_random_room(self, cc_material_dir, pix3d_dir, amount=15, scale_range=(100, 150)):
+
+    def add_random_room(self, cc_material_dir, pix3d_dir, amount=15,
+                        target_longest_side_range=(0.6, 2.0),
+                        used_floor_area=40.0,
+                        wall_height=2.7):
         """
-        Build a random room (walls/floor/ceiling) and populate it with a random subset
-        of Pix3D meshes instead of the (now-unavailable) IKEA dataset.
+        Build a random room and populate it with a random subset of Pix3D meshes.
 
         Args:
-            cc_material_dir: path to CCTextures/ambientCG materials (for walls/floor/ceiling)
-            pix3d_dir: root folder of Pix3D dataset
-            amount: how many furniture objects to sample for this room
-            scale_range: random uniform scale applied to each loaded object
-
-        Returns:
-            room_objects: list of MeshObjects that form the room shell
+            cc_material_dir: path to CCTextures/ambientCG materials.
+            pix3d_dir: root folder of Pix3D dataset.
+            amount: how many furniture objects to sample.
+            target_longest_side_range: clamp each object's longest bbox side to this [min,max] (meters).
+            used_floor_area: floor area in m² for the room.
+            wall_height: room wall height in meters.
         """
-        # 1) Materials for the room shell
+
         materials = bproc.loader.load_ccmaterials(cc_material_dir)
 
-        # 2) Gather Pix3D OBJ paths (handles typical Pix3D layouts)
-        #    Many Pix3D releases store meshes under category/model/*.obj or category/*/*.obj
-        candidates = set()
+        # Find OBJ files under Pix3D
         patterns = [
             os.path.join(pix3d_dir, "*", "*.obj"),
             os.path.join(pix3d_dir, "*", "*", "*.obj"),
-            os.path.join(pix3d_dir, "*", "*", "model.obj"),   # common Pix3D naming
+            os.path.join(pix3d_dir, "*", "*", "model.obj"),
         ]
-        for pat in patterns:
-            for p in glob.glob(pat):
-                # Heuristic: avoid accidental non-mesh objs (if any)
-                name = os.path.basename(p).lower()
-                if name.endswith(".obj"):
-                    candidates.add(p)
-
-        candidates = sorted(candidates)
+        candidates = sorted({p for pat in patterns for p in glob.glob(pat)})
         if not candidates:
             raise RuntimeError(f"No OBJ files found under Pix3D dir: {pix3d_dir}")
 
-        # 3) Sample a subset to keep memory/render times reasonable
         chosen = random.sample(candidates, k=min(amount, len(candidates)))
 
-        # 4) Load chosen meshes (with materials if MTL/textures are present)
+        def normalize_scale(mesh_obj, tgt_range):
+            """Scale so the longest bbox side is within tgt_range (meters)."""
+            bb = np.asarray(mesh_obj.get_bound_box())  # (8,3)
+            ext = bb.max(axis=0) - bb.min(axis=0)
+            longest = float(ext.max())
+            if longest <= 1e-6:
+                return  # skip degenerate
+            # Pick a random target size within range to add variation
+            target = random.uniform(*tgt_range)
+            s = target / longest
+            mesh_obj.set_scale([s, s, s])
+
         interior_objects = []
         for obj_path in chosen:
             loaded = bproc.loader.load_obj(obj_path)
             for o in loaded:
-                # Random gentle rescale (Pix3D units vary a bit)
-                s = random.uniform(*scale_range)
-                o.set_scale([s, s, s])
+                # Normalize to sensible furniture size instead of 100x
+                normalize_scale(o, target_longest_side_range)
+                #o.set_rotation_euler(o.get_rotation_euler() + np.array([0, 0, np.pi/2]))
+                o.set_location(o.get_location() + np.array([0, 0, (o.get_bound_box()[:,2].max() - o.get_bound_box()[:,2].min()) / 2]))
                 o.set_cp("dataset", "pix3d")
             interior_objects.extend(loaded)
 
-        # 5) Construct a random room and let BlenderProc place the objects in it
+        # Let the constructor build the room AND place interior_objects inside it
         room_objects = bproc.constructor.construct_random_room(
+            used_floor_area=used_floor_area,
             interior_objects=interior_objects,
             materials=materials,
-            used_floor_area=500,
             amount_of_extrusions=3,
-            corridor_width=1.5
+            corridor_width=1.2,
+            wall_height=wall_height,
+            only_use_big_edges=False
         )
 
-        # Optional: make the ceiling a soft area light
+        # Optional: make the ceiling softly emissive
         bproc.lighting.light_surface(
             [o for o in room_objects if "Ceiling" in o.get_name()],
-            emission_strength=2.0
+            emission_strength=random.uniform(0.5, 1.0)
         )
 
-        self.room_objects = room_objects
+        self.room_objects = room_objects  # these are shell objects, not furniture
         return room_objects
     
 
@@ -206,7 +211,7 @@ class Scene:
             max_distance=0.1,
             min_distance=0.05,
             max_tries=500,
-            sample_pose_func=sample_pose_surface  # <- not self.sample_pose_surface
+            sample_pose_func=sample_pose_surface
         )
 
 
