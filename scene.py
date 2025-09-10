@@ -53,6 +53,46 @@ class Scene:
         )
         bproc.camera.add_camera_pose(cam_pose)
 
+    def add_camera_in_room(self, min_height: float = 1.4, max_height: float = 1.7):
+            """
+            Place one camera somewhere inside the room (above the floor) and make it look at the room center.
+            """
+            if not hasattr(self, "room_objects"):
+                raise RuntimeError("No room objects found; call add_random_room() first.")
+
+            # Find a floor object
+            floor_objs = [o for o in self.room_objects if "Floor" in o.get_name()]
+            if not floor_objs:
+                raise RuntimeError("No floor object found in the room; cannot place camera.")
+            floor = floor_objs[0]
+
+            # Sample a camera location above the floor
+            cam_location = bproc.sampler.upper_region(
+                objects_to_sample_on=[floor],
+                min_height=min_height,
+                max_height=max_height,
+                use_ray_trace_check=True
+            )
+
+            # Aim at room center (from floor bbox)
+            bb = np.array(floor.get_bound_box())
+            room_center = bb.mean(axis=0)
+
+            forward_vec = room_center - cam_location
+            if np.linalg.norm(forward_vec) < 1e-6:
+                # Edge case: sampled exactly at center; point along -Z
+                forward_vec = np.array([0.0, 0.0, -1.0])
+
+            R = bproc.camera.rotation_from_forward_vec(forward_vec)  # 3x3
+
+            # Build a 4x4 cam2world matrix
+            cam2world = np.eye(4, dtype=np.float64)
+            cam2world[:3, :3] = R
+            cam2world[:3, 3]  = cam_location
+
+            # Register the pose
+            bproc.camera.add_camera_pose(cam2world)
+
     def add_random_background(self, bg_folder, strength=1.0):
         """
         Pick a random image (jpg/png/hdr/exr) from bg_folder and set it as the world background.
@@ -71,7 +111,7 @@ class Scene:
         return chosen
     
     
-    def add_random_room(self, cc_material_dir, pix3d_dir, amount=15, scale_range=(0.95, 1.15)):
+    def add_random_room(self, cc_material_dir, pix3d_dir, amount=15, scale_range=(100, 150)):
         """
         Build a random room (walls/floor/ceiling) and populate it with a random subset
         of Pix3D meshes instead of the (now-unavailable) IKEA dataset.
@@ -125,7 +165,7 @@ class Scene:
         room_objects = bproc.constructor.construct_random_room(
             interior_objects=interior_objects,
             materials=materials,
-            used_floor_area=100,
+            used_floor_area=500,
             amount_of_extrusions=3,
             corridor_width=1.5
         )
@@ -136,7 +176,38 @@ class Scene:
             emission_strength=2.0
         )
 
+        self.room_objects = room_objects
         return room_objects
+    
+
+    def place_objects_in_room(self):
+        if not hasattr(self, "room_objects"):
+            raise RuntimeError("No room objects found; call add_random_room() first.")
+        
+        floor_objs = [o for o in self.room_objects if "Floor" in o.get_name()]
+        if not floor_objs:
+            raise RuntimeError("No floor object found in the room; cannot place objects.")
+
+        # Define a sampling function that closes over floor_objs
+        def sample_pose_surface(obj: bproc.types.MeshObject):
+            obj.set_location(bproc.sampler.upper_region(
+                objects_to_sample_on=floor_objs,
+                min_height=1,
+                max_height=4,
+                use_ray_trace_check=False
+            ))
+            obj.set_rotation_euler(
+                np.random.uniform([0, 0, 0], [np.pi * 2, np.pi * 2, np.pi * 2])
+            )
+
+        bproc.object.sample_poses_on_surface(
+            list(itertools.chain.from_iterable(self.all_loaded_groups)),
+            floor_objs[0],
+            max_distance=0.1,
+            min_distance=0.05,
+            max_tries=500,
+            sample_pose_func=sample_pose_surface  # <- not self.sample_pose_surface
+        )
 
 
     def add_light(self, light_type="SUN", location=[0,0,5], energy=10):
