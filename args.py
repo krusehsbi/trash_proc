@@ -14,4 +14,5 @@ def parse_script_args():
     parser.add_argument("--num_views", type=int, default=3, help="number of camera views")
     parser.add_argument("--apply_weathering", action='store_true', help="whether to apply random weathering to objects")
     parser.add_argument("--random_background", action='store_true', help="whether to add a random background image")
+    parser.add_argument("--random_room", action='store_true', help="whether to add a random room")
     return parser.parse_args(raw)
