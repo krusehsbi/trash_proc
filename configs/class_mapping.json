@@ -15,7 +15,11 @@
         "class_id": 2,
         "class_name": "Bottle",
         "color": [0, 0, 255],
-        "class_dir": "bottle/"
+        "class_dir": "bottle/",
+        "links":[
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/006_mustard_bottle_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/021_bleach_cleanser_google_512k.tgz"
+        ]
     },
     {
         "class_id": 3,
@@ -27,25 +31,49 @@
         "class_id": 4,
         "class_name": "Can",
         "color": [255, 0, 255],
-        "class_dir": "can/"
+        "class_dir": "can/",
+        "links":[
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/002_master_chef_can_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/005_tomato_soup_can_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/007_tuna_fish_can_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/010_potted_meat_can_google_512k.tgz"
+        ]
     },
     {
         "class_id": 5,
         "class_name": "Other plastic",
         "color": [0, 255, 255],
-        "class_dir": "other_plastic/"
+        "class_dir": "other_plastic/",
+        "links":[
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/072-a_toy_airplane_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/072-b_toy_airplane_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/073-a_lego_duplo_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/073-b_lego_duplo_google_512k.tgz"
+        ]
     },
     {
         "class_id": 6,
         "class_name": "Carton",
         "color": [128, 0, 128],
-        "class_dir": "carton/"
+        "class_dir": "carton/",
+        "links":[
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/003_cracker_box_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/004_sugar_box_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/008_pudding_box_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/009_gelatin_box_google_512k.tgz"
+        ]
     },
     {
         "class_id": 7,
         "class_name": "Cup",
         "color": [128, 128, 0],
-        "class_dir": "cup/"
+        "class_dir": "cup/",
+        "links":[
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/065-a_cups_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/065-b_cups_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/065-c_cups_google_512k.tgz",
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/065-d_cups_google_512k.tgz"
+        ]
     },
     {
         "class_id": 8,
