@@ -113,7 +113,7 @@ class Scene:
 
     def add_random_room(self, cc_material_dir, pix3d_dir, amount=50,
                         target_longest_side_range=(1.0, 1.1),
-                        used_floor_area=40.0,
+                        used_floor_area=9.0,
                         wall_height=2.7):
         """
         Build a random room and populate it with a random subset of Pix3D meshes.
@@ -191,13 +191,20 @@ class Scene:
         return room_objects
     
 
-    def place_objects_in_room(self):
+    def place_objects_in_room(self, scale: float = 0.08):
         if not hasattr(self, "room_objects"):
             raise RuntimeError("No room objects found; call add_random_room() first.")
         
         floor_objs = [o for o in self.room_objects if "Floor" in o.get_name()]
         if not floor_objs:
             raise RuntimeError("No floor object found in the room; cannot place objects.")
+
+        # scale all objects in all_loaded_groups by a single uniform factor (argument)
+        flat_objs = list(itertools.chain.from_iterable(self.all_loaded_groups))
+        if flat_objs and abs(scale - 1.0) > 1e-6:
+            for o in flat_objs:
+                s = np.array(o.get_scale(), dtype=float)
+                o.set_scale((s * float(scale)).tolist())
 
         # Define a sampling function that closes over floor_objs
         def sample_pose_surface(obj: bproc.types.MeshObject):
@@ -214,8 +221,8 @@ class Scene:
         bproc.object.sample_poses_on_surface(
             list(itertools.chain.from_iterable(self.all_loaded_groups)),
             floor_objs[0],
-            max_distance=0.1,
-            min_distance=0.05,
+            max_distance=10,
+            min_distance=0.00001,
             max_tries=500,
             sample_pose_func=sample_pose_surface
         )
