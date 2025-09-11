@@ -178,7 +178,7 @@ class Scene:
             corridor_width=1.2,
             wall_height=wall_height,
             only_use_big_edges=False,
-            amount_of_objects_per_sq_meter=0.5
+            amount_of_objects_per_sq_meter=1.0
         )
 
         # Optional: make the ceiling softly emissive
