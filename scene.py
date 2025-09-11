@@ -111,8 +111,8 @@ class Scene:
         
         return chosen
 
-    def add_random_room(self, cc_material_dir, pix3d_dir, amount=15,
-                        target_longest_side_range=(0.6, 2.0),
+    def add_random_room(self, cc_material_dir, pix3d_dir, amount=50,
+                        target_longest_side_range=(1.0, 1.1),
                         used_floor_area=40.0,
                         wall_height=2.7):
         """
@@ -159,8 +159,13 @@ class Scene:
             for o in loaded:
                 # Normalize to sensible furniture size instead of 100x
                 normalize_scale(o, target_longest_side_range)
-                #o.set_rotation_euler(o.get_rotation_euler() + np.array([0, 0, np.pi/2]))
-                o.set_location(o.get_location() + np.array([0, 0, (o.get_bound_box()[:,2].max() - o.get_bound_box()[:,2].min()) / 2]))
+                
+                # fix the rotation bug fixed by object import
+                o.persist_transformation_into_mesh(location=False, rotation=True, scale=False)
+
+                # remove offset
+                o.move_origin_to_bottom_mean_point()
+
                 o.set_cp("dataset", "pix3d")
             interior_objects.extend(loaded)
 
@@ -172,7 +177,8 @@ class Scene:
             amount_of_extrusions=3,
             corridor_width=1.2,
             wall_height=wall_height,
-            only_use_big_edges=False
+            only_use_big_edges=False,
+            amount_of_objects_per_sq_meter=0.5
         )
 
         # Optional: make the ceiling softly emissive
