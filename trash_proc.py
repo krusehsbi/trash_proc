@@ -74,6 +74,19 @@ elif args.random_background:
 
     # 6. Add lights
     scene.add_light("SUN", location=[0, 0, 5], energy=10)
+else:
+    scene.place_objects_randomly()
+
+    #Compute camera radius from scene (for camera placement)
+    center, base_radius = scene.find_camera_radius(distance_factor=1.5)
+
+    #Add camera poses around scene
+    for i in range(args.num_views):  # three random views
+        scene.add_camera_poses(center, base_radius)
+
+
+    # 6. Add lights
+    scene.add_light("SUN", location=[0, 0, 5], energy=10)
 
 # 7. Render and save
 bproc.renderer.set_output_format("JPEG")
