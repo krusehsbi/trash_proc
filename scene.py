@@ -12,7 +12,7 @@ class Scene:
         self.all_loaded_groups = all_loaded_groups
 
     def sample_pose(self, obj: bproc.types.MeshObject):
-        obj.set_location(np.random.uniform([-5, -5, -5], [5, 5, 5]))
+        obj.set_location(np.random.uniform([-2.5, -2.5, -2.5], [2.5, 2.5, 2.5]))
         obj.set_rotation_euler(np.random.uniform([0, 0, 0], [np.pi, np.pi, np.pi]))
 
     def place_objects_randomly(self):
@@ -113,8 +113,8 @@ class Scene:
 
     def add_random_room(self, cc_material_dir, pix3d_dir, amount=50,
                         target_longest_side_range=(1.0, 1.1),
-                        used_floor_area=9.0,
-                        wall_height=2.7):
+                        used_floor_area=4.0,
+                        wall_height=1.8):
         """
         Build a random room and populate it with a random subset of Pix3D meshes.
 

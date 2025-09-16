@@ -26,7 +26,7 @@ for category in class_mappings:
     category_id = category["class_id"]
     class_dir = category["class_dir"]
     name = category["class_name"]
-    category_dir = os.path.join(ROOT, "assets", class_dir)
+    category_dir = os.path.join(ROOT, "scaled_assets", class_dir)
     if not os.path.exists(category_dir):
         print(f"[warn] Category directory does not exist: {category_dir}")
         continue
