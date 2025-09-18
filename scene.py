@@ -12,7 +12,7 @@ class Scene:
         self.all_loaded_groups = all_loaded_groups
 
     def sample_pose(self, obj: bproc.types.MeshObject):
-        obj.set_location(np.random.uniform([-2.5, -2.5, -2.5], [2.5, 2.5, 2.5]))
+        obj.set_location(np.random.uniform([-5, -5, -5], [5, 5, 5]))
         obj.set_rotation_euler(np.random.uniform([0, 0, 0], [np.pi, np.pi, np.pi]))
 
     def place_objects_randomly(self):
@@ -191,7 +191,7 @@ class Scene:
         return room_objects
     
 
-    def place_objects_in_room(self, scale: float = 0.08):
+    def place_objects_in_room(self, scale: float = 1.0):
         if not hasattr(self, "room_objects"):
             raise RuntimeError("No room objects found; call add_random_room() first.")
         

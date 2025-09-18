@@ -14,7 +14,6 @@
         "color": [0, 255, 0],
         "class_dir": "cigarette/",
         "links":[
-            "https://drive.google.com/drive/folders/1Q2oY1ksaz4hKmcAIxWvH0jH1QweH4sTC"
         ]
     },
     {
@@ -24,9 +23,7 @@
         "class_dir": "bottle/",
         "links":[
             "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/006_mustard_bottle_google_512k.tgz",
-            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/021_bleach_cleanser_google_512k.tgz",
-            "https://drive.google.com/drive/folders/1GIt3RP51tDD19mLciQCyLG2PCr-Ebnzr",
-            "https://drive.google.com/drive/folders/1SVorZHsFSAgP_i7GTa-GnmDi79TQ7DbE"
+            "http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com/data/google/021_bleach_cleanser_google_512k.tgz"
         ]
     },
     {
@@ -35,7 +32,6 @@
         "color": [255, 255, 0],
         "class_dir": "bottle_cap/",
         "links":[
-            "https://drive.google.com/drive/folders/1SopWF-u84lTJ8_l3FABZZMrJA84sq46H"
         ]
     },
     {

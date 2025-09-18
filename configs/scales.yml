@@ -1,0 +1,55 @@
+plastic_bag_wrapper:
+  target_size: 0.25
+  measure: max
+  jitter_pct: 0.05
+
+cigarette:
+  target_size: 0.085
+  measure: max
+  jitter_pct: 0.00
+
+bottle:
+  target_size: 0.25
+  measure: max
+  longest_to_z: true
+  trim_pct: 0.02
+  diameter_cap: 0.09
+  jitter_pct: 0.05
+
+bottle_cap:
+  target_size: 0.028
+  measure: max
+  jitter_pct: 0.00
+
+can:
+  target_size: 0.12
+  measure: max
+  longest_to_z: true
+  trim_pct: 0.01
+  #diameter_cap: 0.075
+  jitter_pct: 0.05
+
+other_plastic:
+  target_size: 0.15
+  measure: max
+  jitter_pct: 0.10
+
+carton:
+  target_size: 0.22
+  measure: max
+  longest_to_z: true
+  trim_pct: 0.01
+  jitter_pct: 0.05
+
+cup:
+  target_size: 0.15
+  measure: max
+  longest_to_z: true
+  trim_pct: 0.02
+  #diameter_cap: 0.09
+  jitter_pct: 0.05  
+
+default:
+  target_size: 0.10
+  measure: max
+  jitter_pct: 0.10
