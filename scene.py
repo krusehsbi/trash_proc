@@ -184,7 +184,7 @@ class Scene:
         # Optional: make the ceiling softly emissive
         bproc.lighting.light_surface(
             [o for o in room_objects if "Ceiling" in o.get_name()],
-            emission_strength=random.uniform(0.5, 1.0)
+            emission_strength=random.uniform(0.5, 1.5)
         )
 
         self.room_objects = room_objects  # these are shell objects, not furniture
