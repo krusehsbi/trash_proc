@@ -275,13 +275,13 @@ def normalize_and_export(in_path, out_path, rule):
     if bool(rule.get("longest_to_z", False)):
         rotate_longest_axis_to_z(objs)
 
-    # --- Auto units sanity (crude cm<->m fix) ---
+    # Optional crude cm<->m sanity (leave as-is if you don't want heuristics)
     if args.auto_units:
         x, y, z = extent_xyz(objs)
         max_dim = max(x, y, z)
-        if max_dim > 50.0:           # probably centimeters read as meters
+        if max_dim > 50.0:
             unit_fix = 0.01
-        elif 0 < max_dim < 0.01:     # probably meters read as centimeters
+        elif 0 < max_dim < 0.01:
             unit_fix = 100.0
         else:
             unit_fix = 1.0
@@ -289,7 +289,12 @@ def normalize_and_export(in_path, out_path, rule):
             for o in objs:
                 o.set_scale(o.get_scale() * unit_fix)
 
-    # Measure current size with chosen metric
+    # ---------- NEW ORDER: CENTER -> SCALE -> FLOOR ----------
+
+    # 1) Center first (so measurement is stable)
+    recenter(objs)
+
+    # 2) Measure and compute scale
     measure_key = str(rule.get("measure", "max")).lower()
     trim_pct = float(rule.get("trim_pct", 0.0))
     cur_size = measure_size(objs, measure=measure_key, trim_pct=trim_pct)
@@ -297,7 +302,6 @@ def normalize_and_export(in_path, out_path, rule):
         print(f"    Non-positive measured size (measure={measure_key}, trim={trim_pct}): {cur_size}")
         return False
 
-    # Compute base factor
     if "target_size" in rule:
         factor = float(rule["target_size"]) / cur_size
     elif "factor" in rule:
@@ -324,14 +328,14 @@ def normalize_and_export(in_path, out_path, rule):
             for o in objs:
                 o.set_scale(o.get_scale() * shrink)
 
-    # Recenter to origin
+    # Recenter again so any numeric drift from scaling is gone
     recenter(objs)
 
-    # Optional: put on floor (min Z = 0)
+    # 3) Optional: put on floor (min Z = 0)
     if args.floor:
         floor_place(objs)
 
-    # Export
+    # 4) Export
     try:
         if ext == ".obj":
             bpy_objs = _bpy_objects_from_meshobjects(objs)
@@ -349,6 +353,7 @@ def normalize_and_export(in_path, out_path, rule):
 
     print(f"    Saved: {out_path}")
     return True
+
 
 # ------------------------------
 # Walk & apply to all files
