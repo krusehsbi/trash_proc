@@ -227,6 +227,11 @@ class Scene:
             sample_pose_func=sample_pose_surface
         )
 
+        for o in flat_objs:
+            o.enable_rigidbody(active=True)
+        floor_objs[0].enable_rigidbody(active=False)
+
+        bproc.object.simulate_physics_and_fix_final_poses(min_simulation_time=2, max_simulation_time=4, check_object_interval=1)
 
     def add_light(self, light_type="SUN", location=[0,0,5], energy=10):
         light = bproc.types.Light()
