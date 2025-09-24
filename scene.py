@@ -16,7 +16,8 @@ class Scene:
         obj.set_rotation_euler(np.random.uniform([0, 0, 0], [np.pi, np.pi, np.pi]))
 
     def place_objects_randomly(self):
-        bproc.object.sample_poses(list(itertools.chain.from_iterable(self.all_loaded_groups)), sample_pose_func=self.sample_pose, objects_to_check_collisions=list(itertools.chain.from_iterable(self.all_loaded_groups)))
+        flat = list(itertools.chain.from_iterable(self.all_loaded_groups))
+        bproc.object.sample_poses(flat, sample_pose_func=self.sample_pose, objects_to_check_collisions=flat)
 
     def find_camera_radius(self, distance_factor=1.5):
         mins, maxs = [], []
@@ -111,7 +112,7 @@ class Scene:
         
         return chosen
 
-    def add_random_room(self, cc_material_dir, pix3d_dir, amount=50,
+    def add_random_room(self, cc_material_dir, pix3d_dir, amount=5,
                         target_longest_side_range=(1.0, 1.1),
                         used_floor_area=9.0,
                         wall_height=1.8):

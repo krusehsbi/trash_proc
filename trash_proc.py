@@ -92,7 +92,7 @@ else:
 bproc.renderer.set_output_format("JPEG")
 bproc.renderer.set_max_amount_of_samples(1024)   # new API
 #bproc.renderer.set_render_devices("CUDA")  # or "GPU" if supported
-#bproc.renderer.set_denoiser("OPTIX")
+bproc.renderer.set_denoiser("OPTIX")
 
 bproc.camera.set_resolution(1024, 1024)
 
