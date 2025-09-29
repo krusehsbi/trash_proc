@@ -154,7 +154,7 @@ class Scene:
             s = target / longest
             mesh_obj.set_scale([s, s, s])
 
-        interior_objects = []
+        self.interior_objects = []
         for obj_path in chosen:
             loaded = bproc.loader.load_obj(obj_path)
             for o in loaded:
@@ -168,12 +168,12 @@ class Scene:
                 o.move_origin_to_bottom_mean_point()
 
                 o.set_cp("dataset", "pix3d")
-            interior_objects.extend(loaded)
+            self.interior_objects.extend(loaded)
 
         # Let the constructor build the room AND place interior_objects inside it
         room_objects = bproc.constructor.construct_random_room(
             used_floor_area=used_floor_area,
-            interior_objects=interior_objects,
+            interior_objects=self.interior_objects,
             materials=materials,
             amount_of_extrusions=3,
             corridor_width=1.2,
@@ -188,6 +188,7 @@ class Scene:
             emission_strength=random.uniform(0.5, 1.5)
         )
 
+        
         self.room_objects = room_objects  # these are shell objects, not furniture
         return room_objects
     
@@ -207,25 +208,28 @@ class Scene:
                 s = np.array(o.get_scale(), dtype=float)
                 o.set_scale((s * float(scale)).tolist())
 
-        # Define a sampling function that closes over floor_objs
         def sample_pose_surface(obj: bproc.types.MeshObject):
-            obj.set_location(bproc.sampler.upper_region(
-                objects_to_sample_on=floor_objs,
-                min_height=1,
-                max_height=4,
-                use_ray_trace_check=False
-            ))
-            obj.set_rotation_euler(
-                np.random.uniform([0, 0, 0], [np.pi * 2, np.pi * 2, np.pi * 2])
+            loc = bproc.sampler.upper_region(
+                objects_to_sample_on=[floor_objs[0]],
+                min_height=0.05, max_height=0.15,
+                use_ray_trace_check=True
             )
+            yaw = np.random.uniform(0, 2*np.pi)
+            pitch = np.random.uniform(-0.1, 0.1)
+            roll  = np.random.uniform(-0.1, 0.1)
+            obj.set_location(loc)
+            obj.set_rotation_euler([pitch, roll, yaw])
 
-        bproc.object.sample_poses_on_surface(
-            list(itertools.chain.from_iterable(self.all_loaded_groups)),
-            floor_objs[0],
-            max_distance=10,
-            min_distance=0.00001,
-            max_tries=500,
-            sample_pose_func=sample_pose_surface
+        for o in flat_objs:
+            o.enable_rigidbody(active=False)
+        for o in floor_objs:
+            o.enable_rigidbody(active=False)
+
+        bproc.object.sample_poses(
+            flat_objs,
+            sample_pose_func=sample_pose_surface,
+            objects_to_check_collisions=self.room_objects + flat_objs,
+            max_tries=300
         )
 
         for o in flat_objs:
