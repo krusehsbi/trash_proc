@@ -197,3 +197,6 @@ pyrightconfig.json
 /damaged_assets
 
 /damaged_assets_scaled
+conveyor.blend
+
+/output_conveyor
