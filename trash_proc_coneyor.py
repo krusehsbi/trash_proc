@@ -16,7 +16,7 @@ from asset_loader import AssetLoader
 bproc.init()
 
 # 2) Load the .blend file, including mesh, camera and light objects
-scene_path = "conveyor.blend"
+scene_path = "conveyortest.blend"
 objs = bproc.loader.load_blend(scene_path, obj_types=["mesh", "camera", "light"])
 
 # 3) Pick the camera object from the loaded objects
@@ -40,6 +40,12 @@ conveyor = bproc.filter.one_by_attr(objs, "name", "conveyor")
 if conveyor is None:
     raise RuntimeError("Could not find an object named 'conveyor' in the scene.")
 conveyor.enable_rigidbody(active=False)
+
+for i in ("wall1", "wall2", "wall3", "wall4"):
+    wall = bproc.filter.one_by_attr(objs, "name", i)
+    if wall is None:
+        raise RuntimeError(f"Could not find an object named '{i}' in the scene.")
+    wall.enable_rigidbody(active=False)
 
 spawn = bproc.filter.one_by_attr(objs, "name", "spawn")
 if spawn is None:
