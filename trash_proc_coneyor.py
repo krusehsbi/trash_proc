@@ -6,6 +6,7 @@ import mathutils
 import sys
 from pathlib import Path
 import numpy as np
+import json
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
@@ -52,13 +53,23 @@ if spawn is None:
     raise RuntimeError("Could not find an object named 'spawn' in the scene.")
 
 # instantiate AssetLoader and load assets
-asset_dir = "/home/alex/projects/trash_proc/scaled_assets"
-loader = AssetLoader(asset_dir=asset_dir)
-loaded_groups = loader.load_assets(
-    asset_dir=asset_dir,
-    clear=True,
-    group_parts_as_one=True
-)
+loader = AssetLoader()  # reuse one loader
+with open(ROOT / "configs/class_mapping_warpd.json", "r") as f:
+    class_mappings = json.load(f)
+
+for category in class_mappings:
+    category_id = category["class_id"]
+    class_dir = category["class_dir"]
+    name = category["class_name"]
+    category_dir = os.path.join(ROOT, "assets_warpd", class_dir)
+    if not os.path.exists(category_dir):
+        print(f"[warn] Category directory does not exist: {category_dir}")
+        continue
+
+    # append results into loader.all_loaded_groups (default behaviour)
+    loader.load_assets(asset_dir=category_dir, category_id=category_id, category_name=name)
+
+loaded_groups = loader.get_all_loaded_groups()
 
 # Apply normalization and basic fixes (persist rotation bug, move origin to bottom)
 for group in loaded_groups:
