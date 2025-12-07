@@ -10,7 +10,6 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-
 from asset_loader import AssetLoader
 
 # 1) Init BlenderProc
@@ -42,11 +41,18 @@ if conveyor is None:
     raise RuntimeError("Could not find an object named 'conveyor' in the scene.")
 conveyor.enable_rigidbody(active=False)
 
+spawn = bproc.filter.one_by_attr(objs, "name", "spawn")
+if spawn is None:
+    raise RuntimeError("Could not find an object named 'spawn' in the scene.")
+
 # instantiate AssetLoader and load assets
 asset_dir = "/home/alex/projects/trash_proc/scaled_assets"
 loader = AssetLoader(asset_dir=asset_dir)
-loaded_groups = loader.load_assets(asset_dir=asset_dir, clear=True, group_parts_as_one=True)
-
+loaded_groups = loader.load_assets(
+    asset_dir=asset_dir,
+    clear=True,
+    group_parts_as_one=True
+)
 
 # Apply normalization and basic fixes (persist rotation bug, move origin to bottom)
 for group in loaded_groups:
@@ -63,31 +69,71 @@ for group in loaded_groups:
     except Exception:
         pass
 
-# Place each loaded asset at a random position in WORLD coordinates
-for group in loaded_groups:
+# --------------------------------------------------------------------
+# Place each loaded asset in a small area, but avoid overlaps so physics
+# doesn't explode. We enforce minimum XY spacing and add light Z stacking.
+# --------------------------------------------------------------------
+placed_positions = []
+min_xy_dist = 0.00       # minimum XY distance between spawned objects (tune)
+max_attempts = 30        # max attempts to find a non-overlapping position
+per_layer = 1            # objects per "height layer"
+layer_height = 0.05      # additional Z offset per layer
+
+for i, group in enumerate(loaded_groups):
     if not group:
         continue
     mesh_obj = group[0]
 
     yaw = random.uniform(0.25 * math.pi, 2.0 * math.pi)
 
-    # set location and rotation (Euler XYZ)
+    loc = None
+    for attempt in range(max_attempts):
+        # sample a base position over the spawn object
+        candidate = bproc.sampler.upper_region(
+            objects_to_sample_on=[spawn],
+            min_height=0.05,
+            max_height=0.05,  # fixed base height for more stable spawning
+            use_ray_trace_check=True
+        )
+
+        # enforce a minimum XY distance from all previously placed objects
+        cand_xy = np.array([candidate[0], candidate[1]])
+        ok = True
+        for p in placed_positions:
+            prev_xy = np.array([p[0], p[1]])
+            if np.linalg.norm(cand_xy - prev_xy) <= min_xy_dist:
+                ok = False
+                break
+
+        if ok:
+            loc = candidate
+            break
+
+    if loc is None:
+        print("Could not find non-overlapping position for object, skipping it.")
+        continue
+
+    # stack objects in layers along Z to further reduce initial intersections
+    layer_index = i // per_layer
+    loc[2] += layer_index * layer_height
+
     try:
-        loc = bproc.sampler.upper_region(
-                objects_to_sample_on=[conveyor],
-                min_height=0.05, max_height=0.15,
-                use_ray_trace_check=True
-            )
         mesh_obj.set_location(loc)
         mesh_obj.set_rotation_euler([yaw, yaw, yaw])
     except Exception as e:
         print(e)
         print("Failed to set location/rotation for an object.")
+        continue
 
-    mesh_obj.enable_rigidbody(active=True)
+    placed_positions.append(loc.copy())
+    mesh_obj.enable_rigidbody(active=True, mass=0.10, collision_margin=0.0001)
 
-bproc.object.simulate_physics_and_fix_final_poses(min_simulation_time=2, max_simulation_time=4, check_object_interval=1)
-
+# Run physics so they fall onto the conveyor and settle
+bproc.object.simulate_physics_and_fix_final_poses(
+    min_simulation_time=2,
+    max_simulation_time=10,
+    check_object_interval=1
+)
 
 # 6) Render one frame from that pose
 data = bproc.renderer.render()
