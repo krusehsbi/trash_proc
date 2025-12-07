@@ -152,10 +152,20 @@ bproc.object.simulate_physics_and_fix_final_poses(
     check_object_interval=1
 )
 
-# 6) Render one frame from that pose
-data = bproc.renderer.render()
+bproc.renderer.set_output_format("JPEG")
+bproc.renderer.set_max_amount_of_samples(1024)   # new API
+#bproc.renderer.set_render_devices("CUDA")  # or "GPU" if supported
+bproc.renderer.set_denoiser("OPTIX")
 
-# 7) Write output (RGB will be in data["colors"], saved to HDF5)
-out_dir = "/home/alex/projects/trash_proc/output_conveyor"
-os.makedirs(out_dir, exist_ok=True)
-bproc.writer.write_hdf5(out_dir, data)
+
+images = bproc.renderer.render()
+#bproc.writer.write_hdf5("output/", images)
+
+seg_data = bproc.renderer.render_segmap(map_by=["class", "instance"])
+bproc.writer.write_coco_annotations(
+    output_dir="output/coco_data_warpd/",
+    instance_segmaps=seg_data["instance_segmaps"],
+    instance_attribute_maps=seg_data["instance_attribute_maps"],
+    colors=images["colors"],
+    color_file_format="JPEG"
+)
