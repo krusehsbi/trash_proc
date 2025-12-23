@@ -1,0 +1,35 @@
+[
+    {
+        "class_id": 1,
+        "class_name": "cardboard",
+        "color": [255, 0, 0],
+        "class_dir": "cardboard/",
+        "links":[
+            
+        ]
+    },
+    {
+        "class_id": 2,
+        "class_name": "metal",
+        "color": [0, 255, 0],
+        "class_dir": "metal/",
+        "links":[
+        ]
+    },
+    {
+        "class_id": 3,
+        "class_name": "rigid_plastic",
+        "color": [0, 0, 255],
+        "class_dir": "rigid_plastic/",
+        "links":[
+        ]
+    },
+    {
+        "class_id": 4,
+        "class_name": "soft_plastic",
+        "color": [255, 255, 0],
+        "class_dir": "soft_plastic/",
+        "links":[
+        ]
+    }
+]

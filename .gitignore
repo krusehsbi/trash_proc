@@ -198,6 +198,10 @@ pyrightconfig.json
 
 /damaged_assets
 
+/assets_warpd_damaged
+
+/assets_zerowaste
+
 /damaged_assets_scaled
 conveyor.blend
 

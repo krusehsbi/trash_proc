@@ -54,14 +54,14 @@ if spawn is None:
 
 # instantiate AssetLoader and load assets
 loader = AssetLoader()  # reuse one loader
-with open(ROOT / "configs/class_mapping_warpd.json", "r") as f:
+with open(ROOT / "configs/class_mapping_zerowaste.json", "r") as f:
     class_mappings = json.load(f)
 
 for category in class_mappings:
     category_id = category["class_id"]
     class_dir = category["class_dir"]
     name = category["class_name"]
-    category_dir = os.path.join(ROOT, "assets_warpd", class_dir)
+    category_dir = os.path.join(ROOT, "assets_zerowaste", class_dir)
     if not os.path.exists(category_dir):
         print(f"[warn] Category directory does not exist: {category_dir}")
         continue
@@ -163,7 +163,7 @@ images = bproc.renderer.render()
 
 seg_data = bproc.renderer.render_segmap(map_by=["class", "instance"])
 bproc.writer.write_coco_annotations(
-    output_dir="output/coco_data_warpd/",
+    output_dir="output/coco_data_zerowastee/",
     instance_segmaps=seg_data["instance_segmaps"],
     instance_attribute_maps=seg_data["instance_attribute_maps"],
     colors=images["colors"],
